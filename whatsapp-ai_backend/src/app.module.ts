@@ -5,9 +5,10 @@ import { UsersService } from './users/users.service';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [MongooseModule.forRoot(process.env.MONGO_URI), , UsersModule],
+  imports: [MongooseModule.forRoot(process.env.MONGO_URI), , UsersModule, AuthModule],
   controllers: [AppController, UsersController],
   providers: [AppService, UsersService],
 })
