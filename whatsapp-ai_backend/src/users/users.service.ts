@@ -25,4 +25,13 @@ export class UsersService {
       )
       .exec();
   }
+  //   async addCredits(userId: string, credits: number): Promise<User> {
+  //     return this.userModel
+  //       .findByIdAndUpdate(
+  //         userId,
+  //         { $inc: { credits } }, // Increment credits
+  //         { new: true }, // Return the updated user
+  //       )
+  //       .exec();
+  //   }
 }
