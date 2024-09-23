@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').notNullable() // Primary key
-      table.string('full_name').nullable() // User's full name
+      table.string('nickname').nullable() // User's full name
       table.string('email', 254).notNullable().unique() // Email, must be unique
       table.string('password').notNullable() // Hashed password
       table.string('role').defaultTo('user') // Role: 'user' or 'admin', default to 'user'
