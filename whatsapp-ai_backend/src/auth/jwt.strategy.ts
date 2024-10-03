@@ -8,17 +8,27 @@ import { JwtPayload } from './jwt-payoad.interface';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersService: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT token from the Authorization header
-      ignoreExpiration: false, // Token will not be accepted if it is expired
-      secretOrKey: process.env.JWT_SECRET || 'your_secret_key', // Use your secret key or from environment variable
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT from `Authorization` header
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET || 'your_secret_key', // Ensure the secret matches with the JWT secret
     });
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.usersService.findByEmail(payload.email); // Fetch user from database
+    // console.log('JwtStrategy - Received Payload:', payload); // Log to check if payload is being processed
+    const user = await this.usersService.findByEmail(payload.email);
+
     if (!user) {
-      throw new UnauthorizedException();
+      // console.log('JwtStrategy - User not found with email:', payload.email);
+      throw new UnauthorizedException('User not found');
     }
-    return { userId: user._id, email: user.email, role: user.role }; // Include the user's role in the payload
+
+    // console.log('JwtStrategy - User validated:', user);
+    return {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+      nickname: user.nickname,
+    };
   }
 }
