@@ -5,12 +5,19 @@ import { StripeService } from './stripe.service';
 import { StripeController } from './stripe.controller';
 import { Stripe } from 'stripe';
 import { User, UserSchema } from '../users/schemas/user.schema'; // Import User schema
+import {
+  Transaction,
+  TransactionSchema,
+} from 'src/transactions/schemas/transaction.schema';
 
 @Global()
 @Module({
   imports: [
     ConfigModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), // Add User schema to the imports
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Transaction.name, schema: TransactionSchema }, // Register Transaction schema
+    ]),
   ],
   providers: [
     {
