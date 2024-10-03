@@ -3,12 +3,15 @@ import { Stripe } from 'stripe';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
+import { Transaction } from 'src/transactions/schemas/transaction.schema';
 
 @Injectable()
 export class StripeService {
   constructor(
     @Inject('STRIPE_CLIENT') private readonly stripeClient: Stripe, // Use stripeClient instead of `stripe`
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Transaction.name)
+    private readonly transactionModel: Model<Transaction>, // Inject Transaction model
   ) {}
 
   /**
@@ -95,6 +98,17 @@ export class StripeService {
       // Update user's credits
       user.credits += totalCreditsToAdd / 10;
       await user.save();
+
+      await this.transactionModel.create({
+        userId: user._id,
+        receiptId: session.id, // Use Stripe's checkout session ID as the receipt ID
+        paymentIntent: session.payment_intent,
+        customerEmail: session.customer_email,
+        amount: session.amount_total, // Amount in cents
+        credits: totalCreditsToAdd / 10, // Credits purchased with bonuses
+        status: 'completed',
+        createdAt: new Date(),
+      });
 
       //   console.log(`User ${user.email} credits updated. New balance: ${user.credits}`);
     }
