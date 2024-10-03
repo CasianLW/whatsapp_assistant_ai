@@ -1,4 +1,4 @@
-import { PromoCode } from './promocode.schema.ts';
+import { PromoCode } from './promocode.schema.js';
 
 describe('PromoCode', () => {
   it('should be defined', () => {
