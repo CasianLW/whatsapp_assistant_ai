@@ -1,4 +1,4 @@
-import { Session } from './session.schema.ts';
+import { Session } from './session.schema';
 
 describe('Session', () => {
   it('should be defined', () => {
