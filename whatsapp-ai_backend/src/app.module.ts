@@ -9,6 +9,7 @@ import { SpecialcodesModule } from './specialcodes/specialcodes.module';
 import { PromoCodesModule } from './promocodes/promocodes.module';
 
 import { StripeModule } from './stripe/stripe.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { StripeModule } from './stripe/stripe.module';
     SpecialcodesModule,
     PromoCodesModule,
     StripeModule,
+    TransactionsModule,
   ],
   controllers: [AppController], // Remove SpecialcodesController and PromoCodesController
   providers: [AppService], // Remove SpecialcodesService and PromoCodesService
