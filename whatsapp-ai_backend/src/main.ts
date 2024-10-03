@@ -14,6 +14,14 @@ async function bootstrap() {
     }),
   );
 
+  const landingPageUrl =
+    process.env.LANDING_PAGE_URL || 'http://localhost:3001';
+  app.enableCors({
+    origin: landingPageUrl,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Autorise les cookies/identifiants pour les requêtes cross-origin
+  });
+
   await app.listen(3000);
 }
 bootstrap();
