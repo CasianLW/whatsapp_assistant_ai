@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { SpecialcodesModule } from './specialcodes/specialcodes.module';
 import { PromoCodesModule } from './promocodes/promocodes.module';
 
+import { StripeModule } from './stripe/stripe.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -16,6 +18,7 @@ import { PromoCodesModule } from './promocodes/promocodes.module';
     AuthModule,
     SpecialcodesModule,
     PromoCodesModule,
+    StripeModule,
   ],
   controllers: [AppController], // Remove SpecialcodesController and PromoCodesController
   providers: [AppService], // Remove SpecialcodesService and PromoCodesService
