@@ -1,23 +1,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { User } from 'src/users/schemas/user.schema';
+import { Document } from 'mongoose';
 
 @Schema()
 export class SpecialCode extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   code: string;
 
   @Prop({ required: true })
-  credits: number; // Number of credits granted by the code
+  credits: number; // Amount of credits to be added
 
-  @Prop({ default: false })
-  isUsed: boolean;
+  @Prop({ default: 1 })
+  maxUsage: number;
 
-  @Prop({ type: Types.ObjectId, ref: User.name })
-  userId: Types.ObjectId; // User who redeemed the code
+  @Prop({ default: 0 })
+  timesUsed: number;
 
   @Prop({ default: Date.now })
-  createdAt: Date;
+  expiresAt: Date;
 }
 
 export const SpecialCodeSchema = SchemaFactory.createForClass(SpecialCode);
