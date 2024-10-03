@@ -10,6 +10,7 @@ import { PromoCodesModule } from './promocodes/promocodes.module';
 
 import { StripeModule } from './stripe/stripe.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { WhatsAppModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     PromoCodesModule,
     StripeModule,
     TransactionsModule,
+    WhatsAppModule,
   ],
   controllers: [AppController], // Remove SpecialcodesController and PromoCodesController
   providers: [AppService], // Remove SpecialcodesService and PromoCodesService
