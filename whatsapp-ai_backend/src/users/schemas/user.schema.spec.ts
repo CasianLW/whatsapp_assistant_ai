@@ -1,4 +1,4 @@
-import { User } from './user.schema.ts';
+import { User } from './user.schema';
 
 describe('User', () => {
   it('should be defined', () => {
