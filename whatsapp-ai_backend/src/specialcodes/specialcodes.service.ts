@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { SpecialCode } from './schemas/specialcode.schema';
+import { SpecialCode, SpecialCodeDocument } from './schemas/specialcode.schema';
 
 @Injectable()
 export class SpecialCodesService {
   constructor(
-    @InjectModel('SpecialCode') private specialCodeModel: Model<SpecialCode>,
+    @InjectModel(SpecialCode.name)
+    private specialCodeModel: Model<SpecialCodeDocument>,
   ) {}
 
   async createSpecialCode(
@@ -15,43 +16,47 @@ export class SpecialCodesService {
     maxUsage: number,
     expiresAt: Date,
   ): Promise<SpecialCode> {
-    const newCode = new this.specialCodeModel({
+    const newSpecialCode = new this.specialCodeModel({
       code,
       credits,
       maxUsage,
       expiresAt,
     });
-    return newCode.save();
+    return newSpecialCode.save();
   }
 
-  async redeemSpecialCode(userId: string, code: string): Promise<SpecialCode> {
-    const specialCode = await this.specialCodeModel.findOne({ code });
-
-    if (!specialCode || specialCode.expiresAt < new Date()) {
-      throw new NotFoundException('Special code is invalid or expired.');
-    }
-
-    if (specialCode.maxUsage <= specialCode.timesUsed) {
-      throw new NotFoundException(
-        'Special code has reached its maximum usage limit.',
-      );
-    }
-
-    // Perform additional logic if needed (e.g., track which users redeemed the special code)
-    specialCode.timesUsed += 1;
-    await specialCode.save();
-    return specialCode;
-  }
-
-  async getAllSpecialCodes(): Promise<SpecialCode[]> {
+  async findAll(): Promise<SpecialCode[]> {
     return this.specialCodeModel.find().exec();
   }
 
-  async deleteSpecialCode(code: string): Promise<{ message: string }> {
-    const result = await this.specialCodeModel.deleteOne({ code }).exec();
-    if (result.deletedCount === 0) {
-      throw new NotFoundException(`Special code with code "${code}" not found`);
+  async findById(id: string): Promise<SpecialCode> {
+    const specialCode = await this.specialCodeModel.findById(id).exec();
+    if (!specialCode) {
+      throw new NotFoundException(`Special code with ID ${id} not found`);
     }
-    return { message: `Special code "${code}" deleted successfully` };
+    return specialCode;
+  }
+
+  async updateSpecialCode(
+    id: string,
+    updateData: Partial<SpecialCode>,
+  ): Promise<SpecialCode> {
+    const updatedSpecialCode = await this.specialCodeModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
+
+    if (!updatedSpecialCode) {
+      throw new NotFoundException(`Special code with ID ${id} not found`);
+    }
+
+    return updatedSpecialCode;
+  }
+
+  async deleteSpecialCode(id: string): Promise<{ message: string }> {
+    const result = await this.specialCodeModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`Special code with ID ${id} not found`);
+    }
+    return { message: `Special code with ID ${id} has been deleted` };
   }
 }

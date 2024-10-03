@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+export type SpecialCodeDocument = SpecialCode & Document;
+
 @Schema()
 export class SpecialCode extends Document {
   @Prop({ required: true, unique: true })
