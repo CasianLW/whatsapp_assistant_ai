@@ -1,4 +1,4 @@
-import { SpecialCode } from './specialcode.schema.ts';
+import { SpecialCode } from './specialcode.schema';
 
 describe('SpecialCode', () => {
   it('should be defined', () => {

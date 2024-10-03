@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/users/schemas/user.schema.ts/user.schema.ts';
+import { User } from 'src/users/schemas/user.schema';
 
 @Schema()
 export class SpecialCode extends Document {
