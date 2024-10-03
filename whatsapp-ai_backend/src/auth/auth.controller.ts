@@ -5,6 +5,7 @@ import {
   Request,
   UseGuards,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -19,6 +20,13 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: any) {
+    // Check if the email already exists
+    const existingUser = await this.usersService.findByEmail(
+      createUserDto.email,
+    );
+    if (existingUser) {
+      throw new ConflictException('Email is already registered');
+    }
     // Hash the password before saving the user
     const hashedPassword = await this.authService.hashPassword(
       createUserDto.password,
