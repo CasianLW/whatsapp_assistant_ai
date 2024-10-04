@@ -2,30 +2,46 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   UseGuards,
   Request,
-  Param,
+  NotFoundException,
 } from '@nestjs/common';
-import { WhatsAppService } from './whatsapp.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { WhatsAppService } from './whatsapp.service';
+import { WhatsAppSession } from './schemas/whatsapp.schema';
+import { UserRequest } from '../auth/interfaces/user-request.interface';
 
 @Controller('whatsapp')
+@UseGuards(JwtAuthGuard) // Apply JWT Guard globally to all routes in this controller
 export class WhatsAppController {
   constructor(private readonly whatsappService: WhatsAppService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // Create a new session and return the session data
   @Post('create-session')
-  async createSession(@Request() req) {
-    const userId = req.user.userId;
-    return this.whatsappService.createSession(userId);
+  async createSession(@Request() req: UserRequest): Promise<WhatsAppSession> {
+    const userId = req.user.userId; // Extract the userId from the authenticated user object
+    return await this.whatsappService.createSession(userId);
   }
 
-  @Get('poll-qr/:userId') // Polling route to check QR code availability
-  async pollQRCode(@Param('userId') userId: string) {
+  // Poll for the QR code based on the userId from the JWT token
+  @Get('poll-qr')
+  async pollQRCode(@Request() req: UserRequest): Promise<{ qrCode: string }> {
+    const userId = req.user.userId; // Extract the userId from the authenticated user object
     const qrCode = await this.whatsappService.getQRCode(userId);
     if (!qrCode) {
-      return { qr: null, status: 'pending' }; // If no QR code yet, return pending
+      throw new NotFoundException(`No QR code found for userId: ${userId}`);
     }
-    return { qr: qrCode, status: 'ready' };
+    return { qrCode };
+  }
+
+  // Disconnect the session for the userId from the JWT token
+  @Delete('disconnect-session')
+  async disconnectSession(
+    @Request() req: UserRequest,
+  ): Promise<{ message: string }> {
+    const userId = req.user.userId; // Extract the userId from the authenticated user object
+    await this.whatsappService.disconnectSession(userId);
+    return { message: `Session for userId: ${userId} has been disconnected.` };
   }
 }
