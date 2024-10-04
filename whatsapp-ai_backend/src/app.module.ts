@@ -11,6 +11,7 @@ import { PromoCodesModule } from './promocodes/promocodes.module';
 import { StripeModule } from './stripe/stripe.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { BotModule } from './bot/bot.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
     StripeModule,
     TransactionsModule,
     WhatsAppModule,
+    BotModule,
   ],
   controllers: [AppController], // Remove SpecialcodesController and PromoCodesController
   providers: [AppService], // Remove SpecialcodesService and PromoCodesService
