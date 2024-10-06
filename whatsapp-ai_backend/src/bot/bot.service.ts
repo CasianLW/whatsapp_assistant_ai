@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BotConfig } from './schemas/bot-config.schema';
+import { OpenAiService } from 'src/openai/openai.service';
 
 @Injectable()
 export class BotService {
@@ -10,11 +11,9 @@ export class BotService {
   constructor(
     @InjectModel(BotConfig.name)
     private readonly botConfigModel: Model<BotConfig>,
+    private readonly openAiService: OpenAiService, // Inject OpenAI Service
   ) {}
 
-  /**
-   * Generates a response for the bot based on the user configuration.
-   */
   async generateResponse(
     userId: string,
     message: string,
@@ -28,56 +27,48 @@ export class BotService {
       this.logger.warn(
         `No bot configuration found for user: ${userId}. Using default configuration.`,
       );
-
-      // Create a default configuration if none is found
       userConfig = await this.createDefaultConfig(userId);
-
-      if (!userConfig) {
-        this.logger.error(
-          `Failed to create a default bot configuration for user: ${userId}`,
-        );
-        return null;
-      }
     }
 
     this.logger.debug(`Bot configuration found: ${JSON.stringify(userConfig)}`);
-    return this.getBotResponse(userConfig, message);
+
+    // Determine whether to use OpenAI or predefined responses
+    if (userConfig.botType === 'openai' && userConfig.openAiConfig.apiKey) {
+      // Initialize OpenAI if not already done
+      this.openAiService.initializeOpenAi(userConfig.openAiConfig.apiKey);
+      return await this.openAiService.generateChatResponse(message, userConfig);
+    } else {
+      return this.getPredefinedResponse(userConfig, message);
+    }
   }
 
-  /**
-   * Generates a bot response based on the configuration and message content.
-   */
-  private getBotResponse(config: BotConfig, message: string): string {
+  private getPredefinedResponse(config: BotConfig, message: string): string {
     const lowerMessage = message.toLowerCase();
-
     if (lowerMessage.includes('hello') || lowerMessage.includes('bonjour')) {
       return `Hello! I'm your ${config.context} bot. How can I assist you today?`;
     }
     if (lowerMessage.includes('bye') || lowerMessage.includes('au revoir')) {
       return `Goodbye! Have a great day!`;
     }
-    return `Sorry, I didn't understand that.`;
+    return (
+      config.customResponses.find((response) =>
+        lowerMessage.includes(response),
+      ) || `Sorry, I didn't understand that.`
+    );
   }
 
-  /**
-   * Creates a default bot configuration for the user.
-   */
   private async createDefaultConfig(userId: string): Promise<BotConfig> {
-    try {
-      const defaultConfig = new this.botConfigModel({
-        userId: userId,
-        context: 'default',
-      });
-
-      await defaultConfig.save();
-      this.logger.log(`Default bot configuration created for user: ${userId}`);
-      return defaultConfig;
-    } catch (error) {
-      this.logger.error(
-        `Error creating default configuration for user: ${userId}`,
-        error,
-      );
-      return null;
-    }
+    const defaultConfig = new this.botConfigModel({
+      userId: userId,
+      context: 'assistant',
+      botType: 'openai',
+      openAiConfig: {
+        apiKey: process.env.OPENAI_API_KEY || 'your-default-openai-api-key',
+        model: 'gpt-3.5-turbo',
+      },
+    });
+    await defaultConfig.save();
+    this.logger.log(`Default bot configuration created for user: ${userId}`);
+    return defaultConfig;
   }
 }
