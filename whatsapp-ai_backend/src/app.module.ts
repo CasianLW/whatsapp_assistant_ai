@@ -12,6 +12,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { WhatsAppModule } from './whatsapp/whatsapp.module';
 import { BotModule } from './bot/bot.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BotModule } from './bot/bot.module';
     TransactionsModule,
     WhatsAppModule,
     BotModule,
+    OpenaiModule,
   ],
   controllers: [AppController], // Remove SpecialcodesController and PromoCodesController
   providers: [AppService], // Remove SpecialcodesService and PromoCodesService
